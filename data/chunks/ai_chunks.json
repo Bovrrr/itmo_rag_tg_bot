@@ -13,7 +13,7 @@
   },
   {
     "type": "educationCost",
-    "text": "{'russian': 599000, 'foreigner': 629000, 'year': 2025}",
+    "text": "Цена платного обучения {'russian': 599000 рублей, 'foreigner': 629000 рублей, 'year': 2025}",
     "source": "https://abit.itmo.ru/program/master/ai",
     "program": "ai"
   },

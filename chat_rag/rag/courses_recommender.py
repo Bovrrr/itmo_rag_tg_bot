@@ -1,7 +1,7 @@
 import json
 import logging
 import os
-from typing import Any, Dict, List, Union
+from typing import Any, Dict, List, Union, ClassVar, Type, Literal
 
 from langchain.schema import HumanMessage, SystemMessage
 from langchain.tools import BaseTool
@@ -15,15 +15,10 @@ ai_product_courses_chunks = os.path.join(CHUNKS_DIR, "ai_product_courses_chunks.
 
 
 class CoursesRecommenderInput(BaseModel):
-    """Схема входных данных для рекомендера курсов."""
-
-    program: str = Field(
-        description="Программа обучения: 'ai' или 'ai_product'",
-        examples=["ai", "ai_product"],
-    )
-    background: str = Field(description="Бэкграунд пользователя")
-    interests: str = Field(description="Интересы пользователя")
-    goals: str = Field(description="Цели пользователя")
+    program: Literal["ai", "ai_product"]
+    background: str
+    interests: str
+    goals: str
 
 
 class CoursesRecommender(BaseTool):
@@ -33,17 +28,15 @@ class CoursesRecommender(BaseTool):
     """
 
     name: str = "courses_recommender"
-    description: str = (
-        "Рекомендует программу обучения из курсов ИТМО на основе профиля абитуриента"
-    )
-    args_schema = CoursesRecommenderInput
+    description: str = "Рекомендует программу обучения из курсов ИТМО на основе профиля абитуриента"
+    args_schema: ClassVar[Type[BaseModel]] = CoursesRecommenderInput  # <-- ВАЖНО
     courses: List[Dict[str, Any]] = Field(default_factory=list)
-    llm: Any = None
+    _llm: Any = PrivateAttr(default=None)
     _logger: logging.Logger = PrivateAttr()
 
     def __init__(self):
         super().__init__()
-        self.llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.0)
+        self._llm = ChatOpenAI(model="gpt-4.1-nano", temperature=0.0)
         self._logger = logging.getLogger("CoursesRecommender")
         if not self._logger.hasHandlers():
             logging.basicConfig(level=logging.INFO)
@@ -154,7 +147,7 @@ class CoursesRecommender(BaseTool):
 
         try:
             self._logger.info(f"Отправка запроса LLM для семестра {semester}")
-            response = self.llm.invoke(
+            response = self._llm.invoke(
                 [
                     SystemMessage(content=system_prompt),
                     HumanMessage(content="Выбери 5 лучших курсов для этого семестра."),

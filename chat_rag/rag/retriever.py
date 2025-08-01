@@ -1,11 +1,15 @@
-from typing import Any
+from typing import Any, ClassVar, Type, Literal
 import logging
+from pydantic import BaseModel, Field, PrivateAttr
 
 from langchain.tools import BaseTool
 from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
+class RetrieverInput(BaseModel):
+    query: str = Field(..., min_length=1, description="Краткий запрос (1–3 фразы)")
+    program: Literal["ai", "ai_product"] = Field(..., description="Программа")
 
 class RetrieverTool(BaseTool):
     """
@@ -14,7 +18,11 @@ class RetrieverTool(BaseTool):
     docs — список объектов Document, где текст хранится в page_content, а метаинформация (type, source, program) — в metadata.
     """
 
-    retriever: Any = None
+    name: str = "retriever"
+    description: str = "Поиск релевантных документов по семантическому сходству."
+    args_schema: ClassVar[Type[BaseModel]] = RetrieverInput  # <-- ВАЖНО
+    _retriever: Any = PrivateAttr(default=None)               # <-- чтобы не было полем модели
+
 
     def __init__(
         self,
@@ -40,7 +48,7 @@ class RetrieverTool(BaseTool):
         metadatas = [doc.metadata for doc in docs]
         logging.info(f"Индексация {len(texts)} документов в FAISS...")
         vectorstore = FAISS.from_texts(texts, embedding=embeddings, metadatas=metadatas)
-        self.retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
+        self._retriever = vectorstore.as_retriever(search_kwargs={"k": 3})
         logging.info("RetrieverTool успешно инициализирован.")
 
     def _run(self, *args, **kwargs):
@@ -63,7 +71,7 @@ class RetrieverTool(BaseTool):
         # Фильтрация по программе задана явно
         if program:
             logging.info(f"Фильтрация по программе: {program}")
-            results = self.retriever.invoke(query, filter={"program": program})
+            results = self._retriever.invoke(query, filter={"program": program})
         else:
             results = self.retriever.invoke(query)
         logging.info(f"Найдено документов: {len(results)}")

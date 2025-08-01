@@ -6,6 +6,7 @@ readme = "README.md"
 requires-python = ">=3.11"
 dependencies = [
     "aiogram>=3.21.0",
+    "black>=25.1.0",
     "faiss-cpu>=1.11.0.post1",
     "langchain>=0.3.27",
     "langchain-huggingface>=0.3.1",
