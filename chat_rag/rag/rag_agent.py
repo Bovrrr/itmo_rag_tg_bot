@@ -1,10 +1,10 @@
 import json
 import os
-from typing import Any, Dict
+from typing import Any, Dict, Union
 
 from dotenv import load_dotenv
 from langchain.agents import AgentType, initialize_agent
-from langchain.memory import ConversationBufferMemory
+from langchain.memory import ConversationBufferMemory, ConversationBufferWindowMemory
 from langchain.schema import Document
 from langchain_openai import ChatOpenAI
 
@@ -65,7 +65,10 @@ agent = initialize_agent(
 )
 
 
-def process_message(user_message: str, memory: ConversationBufferMemory) -> str:
+def process_message(
+    user_message: str,
+    memory: Union[ConversationBufferMemory, ConversationBufferWindowMemory],
+) -> str:
     agent.memory = memory
     return agent.run(input=user_message)
 

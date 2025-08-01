@@ -5,6 +5,7 @@ import os
 from aiogram import Bot, Dispatcher
 from config import TELEGRAM_BOT_TOKEN
 from handlers import router
+from middlewares import DialogHistoryMiddleware
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
@@ -21,6 +22,10 @@ async def main():
     try:
         bot = Bot(token=TELEGRAM_BOT_TOKEN)
         dp = Dispatcher()
+
+        # Подключаем middleware для хранения историй диалогов
+        dp.message.middleware(DialogHistoryMiddleware())
+
         dp.include_router(router)
         await dp.start_polling(bot)
     except (asyncio.CancelledError, RuntimeError) as e:

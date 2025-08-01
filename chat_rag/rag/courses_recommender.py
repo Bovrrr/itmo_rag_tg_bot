@@ -28,7 +28,9 @@ class CoursesRecommender(BaseTool):
     """
 
     name: str = "courses_recommender"
-    description: str = "Рекомендует программу обучения из курсов ИТМО на основе профиля абитуриента"
+    description: str = (
+        "Рекомендует программу обучения из курсов ИТМО на основе профиля абитуриента"
+    )
     args_schema: ClassVar[Type[BaseModel]] = CoursesRecommenderInput  # <-- ВАЖНО
     courses: List[Dict[str, Any]] = Field(default_factory=list)
     _llm: Any = PrivateAttr(default=None)

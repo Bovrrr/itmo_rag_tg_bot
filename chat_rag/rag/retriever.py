@@ -7,9 +7,11 @@ from langchain_community.vectorstores import FAISS
 from langchain_core.documents import Document
 from langchain_huggingface.embeddings import HuggingFaceEmbeddings
 
+
 class RetrieverInput(BaseModel):
     query: str = Field(..., min_length=1, description="Краткий запрос (1–3 фразы)")
     program: Literal["ai", "ai_product"] = Field(..., description="Программа")
+
 
 class RetrieverTool(BaseTool):
     """
@@ -21,8 +23,7 @@ class RetrieverTool(BaseTool):
     name: str = "retriever"
     description: str = "Поиск релевантных документов по семантическому сходству."
     args_schema: ClassVar[Type[BaseModel]] = RetrieverInput  # <-- ВАЖНО
-    _retriever: Any = PrivateAttr(default=None)               # <-- чтобы не было полем модели
-
+    _retriever: Any = PrivateAttr(default=None)  # <-- чтобы не было полем модели
 
     def __init__(
         self,
