@@ -1,0 +1,14 @@
+[project]
+name = "langchain-learning"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "aiogram>=3.21.0",
+    "faiss-cpu>=1.11.0.post1",
+    "langchain>=0.3.27",
+    "langchain-huggingface>=0.3.1",
+    "langchain-openai>=0.3.28",
+    "openai>=1.98.0",
+]
